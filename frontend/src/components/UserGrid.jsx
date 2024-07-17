@@ -1,9 +1,31 @@
-import { Grid } from "@chakra-ui/react"
-import { USERS } from "../dummy/dummy"
+import { Flex, Grid, Spinner, Text } from "@chakra-ui/react"
 import UserCard from "./UserCard"
+import { useEffect, useState } from "react"
+import { BASE_URL } from "../App"
 
-function UserGrid() {
+const UserGrid = ({users, setUsers}) => {
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const res = await fetch(BASE_URL + "/friends")
+        const data = await res.json()
+
+        if(!res.ok) {
+          throw new Error(data.error)
+        }
+        setUsers(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    getUsers()
+  }, [setUsers])
   return (
+    <>
     <Grid templateColumns={{
         base: "1fr",
         md: "repeat(2, 1fr)",
@@ -11,10 +33,27 @@ function UserGrid() {
     }}
     gap={4}
     >
-        {USERS.map((user) => (
-            <UserCard key={user.id} user={user}></UserCard>
+        {users.map((user) => (
+            <UserCard key={user.id} user={user} setUsers={setUsers}></UserCard>
         ))}
     </Grid>
+
+    {isLoading && (
+      <Flex justifyContent={"center"}>
+        <Spinner size={"xl"}/>
+      </Flex>
+    )}
+
+    {!isLoading && users.length === 0 && (
+      <Flex justifyContent={"center"}>
+        <Text fontSize={"xl"}>
+          <Text as={"span"} fontSize={"2xl"} fontWeight={"bold"} mr={2}>
+            Sry no coding friends found! 😢
+          </Text>
+        </Text>
+      </Flex>
+    )}
+    </>
   )
 }
 

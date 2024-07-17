@@ -1,14 +1,47 @@
-import { Avatar, Box, Card, CardBody, CardHeader, Flex, Heading, IconButton, Text } from "@chakra-ui/react"
+import { Avatar, Box, Card, CardBody, CardHeader, Flex, Heading, IconButton, Text, useToast } from "@chakra-ui/react"
 import { FaTrashAlt } from "react-icons/fa";
 import EditModal from "./EditModal";
+import { BASE_URL } from "../App";
 
- function UserCard({ user }) {
+ function UserCard({ user, setUsers }) {
+
+    const toast = useToast()
+    const handleDeleteUser = async () => {
+        try {
+            const res = await fetch(BASE_URL + "/friends/" + user.id, {
+                method: "DELETE"
+            })
+            const data = await res.json()
+            if(!res.ok) {
+                throw new Error(data.error)
+            }
+            setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id))
+            toast({
+                title: 'User deleted successfully 🎉',
+                status: 'success',
+                duration: 2000,
+                isClosable: true,
+                position: "top-center"
+            })
+
+        } catch (error) {
+            toast({
+                title: 'An error occurred!',
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+                description: error.message,
+                position: "top-center"
+            })
+        }
+    }
+
   return (
     <Card>
         <CardHeader>
             <Flex gap={4}>
                 <Flex flex={"1"} gap={4} alignItems={"center"}>
-                    <Avatar />
+                    <Avatar src={user.imgUrl}/>
                     <Box>
                         <Heading size="sm">{user.name}</Heading>
                         <Text>{user.role}</Text>
@@ -16,8 +49,8 @@ import EditModal from "./EditModal";
                 </Flex>
 
                 <Flex>
-                    <EditModal />
-                    <IconButton variant={"ghost"} colorScheme="red" size={"sm"} aria-label="See menu" icon={<FaTrashAlt size={20} />}  />
+                    <EditModal user={user} setUsers={setUsers} />
+                    <IconButton variant={"ghost"} colorScheme="red" size={"sm"} aria-label="See menu" icon={<FaTrashAlt size={20} onClick={handleDeleteUser} />}  />
                 </Flex>
             </Flex>
         </CardHeader>

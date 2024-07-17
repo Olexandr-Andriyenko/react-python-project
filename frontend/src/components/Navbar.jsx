@@ -3,7 +3,7 @@ import { IoMoon } from "react-icons/io5";
 import { LuSun } from "react-icons/lu";
 import CreateUserModal from "./CreateUserModal";
 
-export const Navbar = () => {
+export const Navbar = ({setUsers}) => {
     const { colorMode, toggleColorMode } = useColorMode()
   return (
     <Container maxW={"900px"}>
@@ -25,7 +25,7 @@ export const Navbar = () => {
                 <Button onClick={toggleColorMode}>
                     {colorMode === "light" ? <IoMoon/> : <LuSun size={20}/>}
                 </Button>
-                <CreateUserModal />
+                <CreateUserModal setUsers={setUsers} />
             </Flex>
 
         </Flex>
